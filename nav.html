@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>길안내</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+         font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif; background:#f4f5f7; color:#101418; }
+  @media (prefers-color-scheme: dark) { body { background:#111418; color:#eef1f4; } p { color:#9aa3ad !important; } }
+  main { text-align:center; padding:24px 16px; max-width:420px; }
+  #n { font-size:26px; font-weight:800; margin:0 0 22px; word-break:keep-all; }
+  #go { display:inline-block; font-size:22px; font-weight:800; color:#fff; background:#03a94d; text-decoration:none;
+        padding:18px 40px; border-radius:999px; }
+  #web { display:inline-block; margin-top:18px; font-size:15px; font-weight:700; color:#03a94d; }
+  p { color:#5b6470; font-size:14px; margin-top:18px; line-height:1.5; }
+</style>
+</head>
+<body>
+<main>
+  <div id="n">목적지 없음</div>
+  <a id="go" href="#">🚗 네이버 지도 길안내</a><br>
+  <a id="web" href="#" target="_self">지도에서 위치만 보기</a>
+  <p>네이버 지도 앱이 바로 안 뜨면 초록 단추를 누르세요.<br>안내가 시작되면 이 탭은 닫으셔도 됩니다.</p>
+</main>
+<script>
+  // 주소 # 뒤: 위도,경도,이름 — # 뒤는 서버로 보내지지 않는다.
+  var raw = decodeURIComponent((location.hash || "").slice(1));
+  var m = raw.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*,?(.*)$/);
+  if (m) {
+    var lat = m[1], lng = m[2], name = (m[3] || "").trim() || "목적지";
+    document.getElementById("n").textContent = name;
+    var q = "dlat=" + lat + "&dlng=" + lng + "&dname=" + encodeURIComponent(name) + "&appname=io.github.realstar0706sys.call";
+    var web = "https://map.naver.com/p?c=" + lng + "," + lat + ",18,0,0,0,dh";
+    var ua = navigator.userAgent || "";
+    var app = /Android/i.test(ua)
+      ? "intent://navigation?" + q + "#Intent;scheme=nmap;action=android.intent.action.VIEW;" +
+        "category=android.intent.category.BROWSABLE;package=com.nhn.android.nmap;end"
+      : "nmap://navigation?" + q;
+    document.getElementById("go").href = app;
+    document.getElementById("web").href = web;
+    history.replaceState(null, "", location.pathname);   // 주소창·방문기록에서 좌표 지우기
+    location.href = app;
+  }
+</script>
+</body>
+</html>
